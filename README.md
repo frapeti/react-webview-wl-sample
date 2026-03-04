@@ -11,7 +11,7 @@ Puedes usar este proyecto tal cual cambiando la URL de tu white label, o tomar s
 
 - Node.js 18+
 - npm o yarn
-- [Expo Go](https://expo.dev/go) en el dispositivo (desarrollo) o EAS CLI para builds
+- [Expo Go](https://expo.dev/go) **actualizado a la última versión** en el dispositivo (desarrollo), o EAS CLI para builds
 - Para iOS: Xcode y simulador o dispositivo físico (macOS)
 - Para Android: Android Studio y emulador o dispositivo con depuración USB
 

@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import * as Location from 'expo-location';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -12,8 +12,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
 // Reemplaza con la URL de tu white label (ej. https://tu-wl.ejemplo.com)
-//const WEBVIEW_URL = 'https://wl-pilar-prod.web.app';
-const WEBVIEW_URL = 'http://192.168.1.62:3000';
+const WEBVIEW_URL = 'https://wl-pilar-prod.web.app';
 
 const VIEWPORT_META =
   'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes';
@@ -92,6 +91,31 @@ export default function App() {
   const webViewRef = useRef<WebView>(null);
   const [locationGranted, setLocationGranted] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Timeout de seguridad: si la página no dispara onLoadEnd en X segundos, ocultamos el loading
+  const LOAD_TIMEOUT_MS = 15000;
+
+  useEffect(() => {
+    return () => {
+      if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    };
+  }, []);
+
+  const startLoadTimeout = useCallback(() => {
+    if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    loadTimeoutRef.current = setTimeout(() => {
+      loadTimeoutRef.current = null;
+      setLoading(false);
+    }, LOAD_TIMEOUT_MS);
+  }, []);
+
+  const clearLoadTimeout = useCallback(() => {
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
+    }
+  }, []);
 
   const requestLocationPermission = useCallback(async () => {
     try {
@@ -254,8 +278,22 @@ export default function App() {
         javaScriptEnabled
         domStorageEnabled
         startInLoadingState
-        onLoadStart={() => setLoading(true)}
-        onLoadEnd={() => setLoading(false)}
+        onLoadStart={() => {
+          setLoading(true);
+          startLoadTimeout();
+        }}
+        onLoadEnd={() => {
+          clearLoadTimeout();
+          setLoading(false);
+        }}
+        onError={() => {
+          clearLoadTimeout();
+          setLoading(false);
+        }}
+        onHttpError={() => {
+          clearLoadTimeout();
+          setLoading(false);
+        }}
         onMessage={onMessage}
         injectedJavaScriptBeforeContentLoaded={createInjectedScript()}
         originWhitelist={['*']}
