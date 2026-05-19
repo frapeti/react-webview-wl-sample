@@ -12,10 +12,10 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 
 // Reemplaza con la URL de tu white label (ej. https://tu-wl.ejemplo.com)
-const WEBVIEW_URL = 'https://wl-pilar-prod.web.app';
+const WEBVIEW_URL = 'https://wlescobar-dev.web.app';
 
 const VIEWPORT_META =
-  'width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes';
+  'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
 
 // Injected before content: viewport, fit-to-screen CSS, then geolocation bridge
 const createInjectedScript = () => `
@@ -36,7 +36,7 @@ const createInjectedScript = () => `
     if (!head || document.getElementById('_rnw-fit-screen')) return;
     var style = document.createElement('style');
     style.id = '_rnw-fit-screen';
-    style.textContent = 'html, body, #root { width: 100% !important; max-width: 100% !important; overflow-x: hidden !important; box-sizing: border-box !important; } * { box-sizing: border-box !important; } body { margin: 0 !important; padding: 0 !important; } #root > * { max-width: 100% !important; } img, video, iframe, embed, object { max-width: 100% !important; height: auto !important; } table { max-width: 100% !important; table-layout: fixed !important; } .tripContainer { max-width: 100% !important; }';
+    style.textContent = 'html, body { margin: 0 !important; padding: 0 !important; width: 100% !important; height: 100% !important; overflow-x: hidden !important; }';
     head.appendChild(style);
   }
   function init() {
@@ -302,6 +302,10 @@ export default function App() {
         geolocationEnabled={Platform.OS === 'android'}
         allowsInlineMediaPlayback
         mediaPlaybackRequiresUserAction={false}
+        scalesPageToFit={false}
+        textZoom={100}
+        setBuiltInZoomControls={false}
+        setDisplayZoomControls={false}
         renderLoading={() => (
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#0066cc" />
